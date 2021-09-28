@@ -10,7 +10,7 @@ export function sortStrings(arr, param = 'asc') {
   newArray.sort((a, b) => {
     const charA = a[0];
     const charB = b[0];
-    const result = charA.localeCompare(charB);
+    const result = charA.localeCompare(charB, ['ru', 'en']);
 
     if (charA.toLowerCase() === charB.toLowerCase()) {
       return result === 1 ? -1 : result;
