@@ -57,9 +57,11 @@ export default class ColumnChart {
     if (data && Object.values(data).length) {
       this.subElements.header.textContent = this.getHeaderValue(data);
       this.subElements.body.innerHTML = this.getColumnBody(data);
-
-      this.element.classList.remove('column-chart_loading');
+    } else {
+      this.subElements.header.textContent = this.getHeaderValue([]);
     }
+
+    this.element.classList.remove('column-chart_loading');
   }
 
   setNewRange(from, to) {
