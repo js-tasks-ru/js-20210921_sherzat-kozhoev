@@ -22,7 +22,7 @@ export default class SortableTable {
       this.loading = true;
 
       const data = await this.loadData(id, order, this.start, this.end);
-      this.update(data);
+      this.addRows(data);
 
       this.loading = false;
     }
@@ -78,6 +78,7 @@ export default class SortableTable {
     this.step = step;
     this.start = start;
     this.end = end;
+    this.infiniteScroll = !isSortLocally;
 
     this.render();
   }
@@ -115,18 +116,24 @@ export default class SortableTable {
   }
 
   addRows(data) {
-    this.data = data;
-
-    this.subElements.body.innerHTML = this.getTableRows(data);
-  }
-
-  update(data) {
     const rows = document.createElement('div');
 
     this.data = [...this.data, ...data];
     rows.innerHTML = this.getTableRows(data);
 
     this.subElements.body.append(...rows.childNodes);
+  }
+
+  update(data) {
+    this.data = data;
+
+    if (data.length) {
+      this.element.classList.remove('sortable-table_empty');
+    } else {
+      this.element.classList.add('sortable-table_empty');
+    }
+
+    this.subElements.body.innerHTML = this.getTableRows(data);
   }
 
   getTableHeader() {
@@ -165,9 +172,7 @@ export default class SortableTable {
 
   getTableRows(data) {
     return data.map(item => `
-      <div class="sortable-table__row">
-        ${this.getTableRow(item, data)}
-      </div>`
+      <a href="/products/${item.id}" class="sortable-table__row">${this.getTableRow(item, data)}</a>`
     ).join('');
   }
 
@@ -202,7 +207,10 @@ export default class SortableTable {
 
   initEventListeners() {
     this.subElements.header.addEventListener('pointerdown', this.onSortClick);
-    document.addEventListener('scroll', this.onWindowScroll);
+
+    if (this.infiniteScroll) {
+      document.addEventListener('scroll', this.onWindowScroll);
+    }
   }
 
   sortOnClient(id, order) {
@@ -220,7 +228,7 @@ export default class SortableTable {
   renderRows(data) {
     if (data.length) {
       this.element.classList.remove('sortable-table_empty');
-      this.addRows(data);
+      this.update(data);
     } else {
       this.element.classList.add('sortable-table_empty');
     }
